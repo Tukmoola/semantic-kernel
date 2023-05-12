@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -12,9 +13,11 @@ using Xunit;
 
 namespace SemanticKernel.UnitTests.CoreSkills;
 
-public class FileIOSkillTests
+public class FileIOSkillTests : IDisposable
 {
     private readonly SKContext _context = new(new ContextVariables(), NullMemory.Instance, null, NullLogger.Instance);
+    private bool _disposedValue;
+    private List<string> _tempFilePaths = new List<string>();
 
     [Fact]
     public void ItCanBeInstantiated()
@@ -71,7 +74,7 @@ public class FileIOSkillTests
     {
         // Arrange
         var skill = new FileIOSkill();
-        var path = Path.GetTempFileName();
+        var path = this.CreateTempFile();
         this._context["path"] = path;
         this._context["content"] = "hello world";
 
@@ -87,7 +90,8 @@ public class FileIOSkillTests
     {
         // Arrange
         var skill = new FileIOSkill();
-        var path = Path.GetTempFileName();
+        var path = this.CreateTempFile();
+        
         File.SetAttributes(path, FileAttributes.ReadOnly);
         this._context["path"] = path;
         this._context["content"] = "hello world";
@@ -100,5 +104,38 @@ public class FileIOSkillTests
 
         // Assert
         _ = await Assert.ThrowsAsync<UnauthorizedAccessException>(Fn);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!this._disposedValue)
+        {
+            if (disposing)
+            {
+                foreach (var path in this._tempFilePaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+                }
+            }
+
+            this._disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        this.Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    private string CreateTempFile()
+    {
+        var path = Path.GetTempFileName();
+        using (var stream = File.Create(path)) { /* Ensures the file exists before setting permissions */ };
+        this._tempFilePaths.Add(path);
+        return path;
     }
 }
