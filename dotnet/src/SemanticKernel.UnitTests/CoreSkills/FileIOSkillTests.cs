@@ -90,9 +90,7 @@ public class FileIOSkillTests : IDisposable
     {
         // Arrange
         var skill = new FileIOSkill();
-        var path = this.CreateTempFile();
-        
-        File.SetAttributes(path, FileAttributes.ReadOnly);
+        var path = this.CreateTempFile(FileAttributes.ReadOnly);
         this._context["path"] = path;
         this._context["content"] = "hello world";
 
@@ -131,10 +129,11 @@ public class FileIOSkillTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private string CreateTempFile()
+    private string CreateTempFile(FileAttributes attributes = FileAttributes.Normal)
     {
         var path = Path.GetTempFileName();
         using (var stream = File.Create(path)) { /* Ensures the file exists before setting permissions */ };
+        File.SetAttributes(path, attributes);
         this._tempFilePaths.Add(path);
         return path;
     }
