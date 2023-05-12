@@ -181,6 +181,6 @@ public class ContextVariablesConverterTests
         options.Converters.Add(new ContextVariablesConverter());
 
         // Act & Assert
-        Assert.Throws<Exception>(() => JsonSerializer.Deserialize<ContextVariables>(json, options));
+        Assert.ThrowsAny<Exception>(() => JsonSerializer.Deserialize<ContextVariables>(json, options));
     }
 }
