@@ -4,7 +4,7 @@
     <RootNamespace>SemanticKernel.UnitTests</RootNamespace>
     <AssemblyName>SemanticKernel.UnitTests</AssemblyName>
     <TargetFramework>net6.0</TargetFramework>
-    <TargetFramework Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '17.4'))">net7.0</TargetFramework>
+    <RollForward>LatestMajor</RollForward>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <NoWarn>CA2007,VSTHRD111</NoWarn>
